@@ -3,79 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NotAi-Pritam | AI Notes Engine</title>
+    <title>NotAi-Pritam | Real AI Video Notes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root { --neon-cyan: #00f2ff; --neon-purple: #bc13fe; }
-        body { background: #050505; color: #eee; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        :root { --cyan: #00f2ff; --purple: #bc13fe; }
+        body { background: #050505; color: #eee; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; }
-        .neon-btn { background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); transition: 0.3s; color: black; font-weight: bold; }
-        .neon-btn:hover { box-shadow: 0 0 20px rgba(0, 242, 255, 0.5); transform: translateY(-2px); }
-        .api-panel { border-top: 2px solid var(--neon-purple); background: #0a0a0a; transition: all 0.5s ease; }
-        .notes-content h1 { color: var(--neon-cyan); font-size: 24px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px;}
-        .notes-content h2 { color: var(--neon-purple); font-size: 20px; margin-top: 20px; }
-        .example-card { border-left: 5px solid var(--neon-cyan); background: rgba(0, 242, 255, 0.05); padding: 15px; margin: 15px 0; border-radius: 0 10px 10px 0; }
+        .neon-text { background: linear-gradient(90deg, var(--cyan), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .notes-content h1 { color: var(--cyan); font-size: 22px; font-weight: bold; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+        .notes-content h2 { color: var(--purple); font-size: 18px; margin-top: 20px; font-weight: 600; }
+        .notes-content p, .notes-content li { color: #ccc; line-height: 1.6; margin-bottom: 10px; }
+        .example-card { border-left: 4px solid var(--cyan); background: rgba(0, 242, 255, 0.05); padding: 15px; margin: 15px 0; border-radius: 0 10px 10px 0; }
+        .loader { border-top-color: var(--cyan); animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="p-4 md:p-10">
 
     <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-10">
-            <h1 class="text-4xl font-black tracking-tighter" style="background: linear-gradient(to right, #00f2ff, #bc13fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                NotAi-Pritam
-            </h1>
-            <button onclick="toggleApiBox()" class="text-xs text-gray-500 hover:text-white border border-gray-700 px-3 py-1 rounded-full">
-                ⚙️ Setup API
-            </button>
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-4xl font-black neon-text">NotAi-Pritam</h1>
+            <button onclick="toggleApiBox()" class="text-xs text-gray-400 border border-gray-700 px-4 py-2 rounded-full hover:bg-white hover:text-black transition">⚙️ Setup API Key</button>
         </div>
 
-        <div id="apiBox" class="hidden glass p-6 mb-8 api-panel">
-            <h3 class="text-sm font-bold text-purple-400 mb-4 uppercase tracking-widest">Connect Your AI (API Settings)</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="apiEndpoint" placeholder="Enter API Endpoint (e.g. OpenAI/Gemini URL)" class="bg-black border border-gray-800 p-3 rounded-lg text-sm focus:outline-none focus:border-cyan-400">
-                <input type="password" id="apiKey" placeholder="Enter API Secret Key" class="bg-black border border-gray-800 p-3 rounded-lg text-sm focus:outline-none focus:border-cyan-400">
-            </div>
-            <p class="text-[10px] text-gray-500 mt-2">* Your keys are saved locally in your browser for security.</p>
+        <div id="apiBox" class="hidden glass p-6 mb-8 border-t-2 border-purple-600">
+            <h3 class="text-xs font-bold text-purple-400 mb-3 uppercase tracking-widest">Google Gemini API Configuration</h3>
+            <input type="password" id="apiKey" placeholder="Paste your Gemini API Key here..." class="w-full bg-black border border-gray-800 p-3 rounded-lg text-sm focus:border-cyan-400 outline-none">
+            <p class="text-[10px] text-gray-500 mt-2">Get a free key from <a href="https://aistudio.google.com/" target="_blank" class="underline text-cyan-500">Google AI Studio</a></p>
         </div>
 
-        <div class="glass p-8 mb-10">
+        <div class="glass p-6 mb-10">
             <div class="flex flex-col md:flex-row gap-4">
-                <select id="lang" class="bg-black text-white p-4 rounded-xl border border-gray-800 focus:outline-none">
-                    <option value="English">English</option>
-                    <option value="Hindi">Hindi</option>
+                <select id="lang" class="bg-black text-white px-4 py-3 rounded-xl border border-gray-800 outline-none">
                     <option value="Hinglish">Hinglish</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="English">English</option>
                 </select>
-                <input type="text" id="videoUrl" placeholder="Paste YouTube Link (e.g., https://youtu.be/...)" class="flex-1 bg-black/40 border border-gray-800 p-4 rounded-xl focus:outline-none focus:border-purple-500">
-                <button onclick="startProcessing()" class="neon-btn px-10 py-4 rounded-xl">GENERATE NOTES</button>
+                <input type="text" id="videoUrl" placeholder="Paste YouTube Video Link..." class="flex-1 bg-black/40 border border-gray-800 p-4 rounded-xl focus:border-purple-500 outline-none">
+                <button onclick="processVideo()" class="bg-gradient-to-r from-[#00f2ff] to-[#bc13fe] text-black font-bold px-8 py-4 rounded-xl hover:scale-105 transition">GENERATE</button>
             </div>
         </div>
 
         <div id="resultArea" class="hidden grid grid-cols-1 lg:grid-cols-5 gap-8">
             <div class="lg:col-span-2 space-y-6">
-                <div id="player" class="glass aspect-video overflow-hidden shadow-2xl"></div>
+                <div id="player" class="glass aspect-video overflow-hidden"></div>
                 
                 <div class="glass p-6">
-                    <h4 class="text-cyan-400 font-bold mb-3">Ask Doubt</h4>
-                    <textarea id="chatInput" rows="2" class="w-full bg-black/50 border border-gray-800 rounded-lg p-3 text-sm focus:outline-none" placeholder="Ask anything about the video..."></textarea>
-                    <button class="mt-2 w-full bg-gray-800 hover:bg-gray-700 py-2 rounded text-xs uppercase font-bold tracking-widest">Submit Question</button>
+                    <h4 class="text-cyan-400 font-bold mb-3">Ask NotAi-Pritam</h4>
+                    <div id="chatBox" class="h-40 overflow-y-auto text-xs space-y-2 mb-4 p-2 bg-black/20 rounded">
+                        <div class="text-gray-500 italic">Chat history will appear here...</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="chatInput" class="flex-1 bg-black/50 border border-gray-800 rounded-lg p-3 text-sm outline-none" placeholder="Ask a question...">
+                        <button onclick="askAI()" class="bg-purple-600 px-4 rounded-lg">🚀</button>
+                    </div>
                 </div>
             </div>
 
             <div class="lg:col-span-3">
                 <div class="flex justify-between items-center mb-4">
-                    <span class="text-gray-400 text-sm">Target Language: <b id="displayLang" class="text-white"></b></span>
+                    <span class="text-sm text-gray-400 font-mono">Status: <span id="statusText" class="text-green-500">Ready</span></span>
                     <div class="flex gap-2">
-                        <button onclick="exportPDF()" class="bg-red-900/30 text-red-400 border border-red-900 px-4 py-1 rounded text-xs hover:bg-red-600 hover:text-white transition">Export PDF</button>
-                        <button onclick="exportJPG()" class="bg-blue-900/30 text-blue-400 border border-blue-900 px-4 py-1 rounded text-xs hover:bg-blue-600 hover:text-white transition">Save JPG</button>
+                        <button onclick="downloadPDF()" class="bg-red-500/20 text-red-400 border border-red-500/50 px-3 py-1 rounded text-xs hover:bg-red-500 hover:text-white">PDF</button>
+                        <button onclick="downloadJPG()" class="bg-blue-500/20 text-blue-400 border border-blue-500/50 px-3 py-1 rounded text-xs hover:bg-blue-500 hover:text-white">JPG</button>
                     </div>
                 </div>
                 
-                <div id="printableNotes" class="glass p-10 min-h-[600px] notes-content">
-                    <div id="loader" class="flex flex-col items-center justify-center h-full py-20">
-                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mb-4"></div>
-                        <p class="text-cyan-400 animate-pulse">AI is watching & writing notes...</p>
+                <div id="notesCanvas" class="glass p-8 min-h-[500px] notes-content">
+                    <div id="loader" class="hidden flex flex-col items-center justify-center py-20">
+                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+                        <p class="text-cyan-400 animate-pulse">Pritam AI is analyzing the video...</p>
                     </div>
                     <div id="notesContainer"></div>
                 </div>
@@ -84,75 +83,99 @@
     </div>
 
     <script>
+        let currentNotesContext = "";
+
         function toggleApiBox() { document.getElementById('apiBox').classList.toggle('hidden'); }
 
-        function extractID(url) {
-            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-            return url.match(regex) ? url.match(regex)[1] : null;
+        function extractVideoID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        async function startProcessing() {
+        async function processVideo() {
             const url = document.getElementById('videoUrl').value;
+            const key = document.getElementById('apiKey').value;
             const lang = document.getElementById('lang').value;
-            const vid = extractID(url);
+            const vid = extractVideoID(url);
 
-            if(!vid) return alert("Bhai, sahi YouTube URL toh daalo!");
+            if(!vid) return alert("Bhai, YouTube URL sahi nahi hai!");
+            if(!key) return alert("Pehle Setup API mein jaake Gemini Key daalo!");
 
             document.getElementById('resultArea').classList.remove('hidden');
-            document.getElementById('displayLang').innerText = lang;
             document.getElementById('player').innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${vid}" frameborder="0" allowfullscreen></iframe>`;
-            
-            // Auto Scroll to Results
-            window.scrollTo({ top: document.getElementById('resultArea').offsetTop - 50, behavior: 'smooth' });
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('notesContainer').innerHTML = "";
 
-            // Simulating API Call
-            setTimeout(() => {
-                renderNotes(lang);
-            }, 3000);
-        }
+            try {
+                const prompt = `Act as an expert educator. Based on the YouTube video (ID: ${vid}), generate extremely detailed study notes in ${lang} language. 
+                Structure it with: 
+                - A main Heading (h1)
+                - Detailed Sub-sections (h2)
+                - Bullet points for key facts
+                - A specialized 'Example Box' using <div class="example-card"> tag for every main topic.
+                Only return the HTML content, no extra talk.`;
 
-        function renderNotes(lang) {
-            document.getElementById('loader').classList.add('hidden');
-            const container = document.getElementById('notesContainer');
-            
-            // Yeh wo format hai jo aapka AI return karega
-            container.innerHTML = `
-                <h1>🚀 Video Detailed Summary (${lang})</h1>
-                <p>This video provides an in-depth analysis of the subject. Our AI has broken down the complex topics into easy-to-read sections.</p>
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                const data = await response.json();
+                let aiText = data.candidates[0].content.parts[0].text;
                 
-                <h2>1. Core Architecture</h2>
-                <ul>
-                    <li>Primary Focus: Performance Optimization</li>
-                    <li>Scalability: Cloud-native approach</li>
-                    <li>Security: End-to-end encryption layers</li>
-                </ul>
+                // Clean AI markdown if present
+                aiText = aiText.replace(/```html/g, "").replace(/```/g, "");
+                
+                currentNotesContext = aiText;
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('notesContainer').innerHTML = aiText;
+                document.getElementById('statusText').innerText = "Notes Generated!";
 
-                <div class="example-card">
-                    <p><strong>💡 Practical Example:</strong> Imagine you are sending a secret letter. This technology is like the invisible ink that only the receiver can read using a special UV light.</p>
-                </div>
-
-                <h2>2. Implementation Steps</h2>
-                <p>To implement this, you need to follow the 3-step validation rule mentioned at 04:20 in the video.</p>
-            `;
+            } catch (err) {
+                alert("Error: API request fail ho gaya. Key check karein.");
+                document.getElementById('loader').classList.add('hidden');
+            }
         }
 
-        async function exportPDF() {
+        async function askAI() {
+            const query = document.getElementById('chatInput').value;
+            const key = document.getElementById('apiKey').value;
+            if(!query || !currentNotesContext) return;
+
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML += `<div class="text-cyan-400"><b>You:</b> ${query}</div>`;
+            document.getElementById('chatInput').value = "";
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        contents: [{ parts: [{ text: `Context: ${currentNotesContext}\n\nQuestion: ${query}\nAnswer shortly.` }] }] 
+                    })
+                });
+                const data = await response.json();
+                const answer = data.candidates[0].content.parts[0].text;
+                chatBox.innerHTML += `<div class="text-white"><b>Pritam AI:</b> ${answer}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            } catch (e) { alert("Chat Error!"); }
+        }
+
+        function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'pt', 'a4');
-            const content = document.getElementById('printableNotes');
-            
-            // Simple colorful PDF generation
-            await doc.html(content, {
+            doc.html(document.getElementById('notesCanvas'), {
                 callback: function(d) { d.save('NotAi-Pritam-Notes.pdf'); },
-                x: 30, y: 30, width: 530, windowWidth: 800
+                margin: [40, 40, 40, 40], x: 0, y: 0, width: 500, windowWidth: 800
             });
         }
 
-        function exportJPG() {
-            const content = document.getElementById('printableNotes');
-            html2canvas(content, {backgroundColor: '#050505'}).then(canvas => {
+        function downloadJPG() {
+            html2canvas(document.getElementById('notesCanvas'), {backgroundColor:'#050505', scale: 2}).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'NotAi-Pritam-Expert-Notes.jpg';
+                link.download = 'NotAi-Pritam-Notes.jpg';
                 link.href = canvas.toDataURL();
                 link.click();
             });
